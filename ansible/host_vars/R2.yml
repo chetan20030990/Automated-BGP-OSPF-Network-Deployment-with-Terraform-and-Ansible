@@ -1,0 +1,6 @@
+---
+# host_vars for R2
+ospf_router_id: "10.0.1.13"
+ospf_network: "10.0.1.0/28"
+ospf_neighbor_ip: "10.0.1.8"    # R1's IP
+bgp_as: 100

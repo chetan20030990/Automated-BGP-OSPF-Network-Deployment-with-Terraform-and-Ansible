@@ -1,0 +1,16 @@
+---
+- name: Enable ospfd daemon in /etc/frr/daemons
+  lineinfile:
+    path: /etc/frr/daemons
+    regexp: "^ospfd="
+    line: "ospfd=yes"
+  notify: restart frr
+
+- name: Deploy OSPF FRR configuration
+  template:
+    src: frr_ospf.conf.j2
+    dest: /etc/frr/frr.conf
+    owner: frr
+    group: frr
+    mode: "0640"
+  notify: restart frr

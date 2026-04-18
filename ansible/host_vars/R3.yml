@@ -1,0 +1,6 @@
+---
+# host_vars for R3
+bgp_router_id: "10.0.2.5"
+bgp_as: 200
+ebgp_peer_ip: "10.0.1.8"       # R1's private IP on subnet A
+advertised_prefix: "10.0.3.0/24"

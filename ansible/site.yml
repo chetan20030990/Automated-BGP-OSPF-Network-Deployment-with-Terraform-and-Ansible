@@ -1,0 +1,23 @@
+---
+# site.yml — Master playbook
+
+# Step 1: Apply base role to all routers
+- name: Base configuration for all routers
+  hosts: all
+  become: yes
+  roles:
+    - base
+
+# Step 2: Apply OSPF role to AS100 routers (R1 and R2)
+- name: Configure OSPF on AS100 routers
+  hosts: as100
+  become: yes
+  roles:
+    - ospf
+
+# Step 3: Apply BGP role to R1 and R3
+- name: Configure BGP on R1 and R3
+  hosts: R1,R3
+  become: yes
+  roles:
+    - bgp

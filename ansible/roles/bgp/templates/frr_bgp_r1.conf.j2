@@ -1,0 +1,28 @@
+frr version 8.5
+frr defaults traditional
+hostname R1
+log syslog informational
+no ipv6 forwarding
+!
+interface eth0
+ ip ospf area 0.0.0.0
+ ip ospf network non-broadcast
+!
+router ospf
+ ospf router-id {{ ospf_router_id }}
+ network {{ ospf_network }} area 0.0.0.0
+ neighbor {{ ospf_neighbor_ip }} priority 1
+!
+router bgp {{ bgp_as }}
+ bgp router-id {{ bgp_router_id }}
+ no bgp ebgp-requires-policy
+ neighbor {{ ebgp_peer_ip }} remote-as 200
+ neighbor {{ ebgp_peer_ip }} description R3-eBGP-peer
+ !
+ address-family ipv4 unicast
+  network {{ advertised_prefix }}
+  neighbor {{ ebgp_peer_ip }} activate
+ exit-address-family
+!
+line vty
+!

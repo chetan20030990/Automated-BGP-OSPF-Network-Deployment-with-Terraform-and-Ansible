@@ -1,0 +1,17 @@
+frr version 8.5
+frr defaults traditional
+hostname {{ inventory_hostname }}
+log syslog informational
+no ipv6 forwarding
+!
+interface eth0
+ ip ospf area 0.0.0.0
+ ip ospf network non-broadcast
+!
+router ospf
+ ospf router-id {{ ospf_router_id }}
+ network {{ ospf_network }} area 0.0.0.0
+ neighbor {{ ospf_neighbor_ip }} priority 1
+!
+line vty
+!

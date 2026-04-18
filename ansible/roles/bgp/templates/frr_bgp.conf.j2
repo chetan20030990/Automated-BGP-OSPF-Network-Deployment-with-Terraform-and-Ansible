@@ -1,0 +1,26 @@
+frr version 8.4
+frr defaults traditional
+hostname {{ inventory_hostname }}
+log syslog informational
+!
+{% if router_role == "r1" %}
+! R1 also has OSPF - include it here so config isn't overwritten
+router ospf
+ ospf router-id {{ ospf_router_id }}
+ network {{ ospf_network }} area 0.0.0.0
+!
+{% endif %}
+router bgp {{ bgp_asn }}
+ bgp router-id {{ bgp_router_id }}
+ bgp log-neighbor-changes
+ !
+ neighbor {{ bgp_neighbor_ip }} remote-as {{ bgp_neighbor_asn }}
+ neighbor {{ bgp_neighbor_ip }} description eBGP-peer
+ !
+ address-family ipv4 unicast
+  network {{ bgp_advertised_prefix }}
+  neighbor {{ bgp_neighbor_ip }} activate
+ exit-address-family
+!
+line vty
+!

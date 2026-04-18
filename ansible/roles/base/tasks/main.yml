@@ -1,0 +1,53 @@
+---
+- name: Enable IP forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: yes
+
+- name: Persist IP forwarding in sysctl.conf
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: "^net.ipv4.ip_forward"
+    line: "net.ipv4.ip_forward = 1"
+
+- name: Remove all FRR repo files
+  shell: rm -f /etc/yum.repos.d/frr*.repo
+  ignore_errors: yes
+
+- name: Remove cached RPMs to force fresh download
+  shell: rm -f /tmp/frr.rpm /tmp/frr-pythontools.rpm /tmp/libyang2.rpm
+  ignore_errors: yes
+
+- name: Download libyang2 RPM (required for FRR 8.5)
+  shell: |
+    curl -L -o /tmp/libyang2.rpm \
+      "https://rpm.frrouting.org/repo/el7/frr8/x86_64/libyang2-2.1.111-01.el7.x86_64.rpm"
+
+- name: Download FRR 8.5.2 RPM
+  shell: |
+    curl -L -o /tmp/frr.rpm \
+      "https://rpm.frrouting.org/repo/el7/frr8/x86_64/frr-8.5.2-02.el7.x86_64.rpm"
+
+- name: Download FRR 8.5.2 pythontools RPM
+  shell: |
+    curl -L -o /tmp/frr-pythontools.rpm \
+      "https://rpm.frrouting.org/repo/el7/frr8/x86_64/frr-pythontools-8.5.2-02.el7.x86_64.rpm"
+
+- name: Force remove any existing FRR version
+  shell: rpm -e --nodeps frr frr-pythontools 2>/dev/null || true
+
+- name: Install libyang2 and FRR 8.5.2
+  shell: yum install -y /tmp/libyang2.rpm /tmp/frr.rpm /tmp/frr-pythontools.rpm
+
+- name: Verify FRR version is 8.5.2
+  shell: rpm -q frr
+  register: frr_version
+  failed_when: "'8.5.2' not in frr_version.stdout"
+
+- name: Ensure FRR service is enabled and running
+  systemd:
+    name: frr
+    state: started
+    enabled: yes
